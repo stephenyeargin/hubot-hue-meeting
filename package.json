@@ -7,10 +7,10 @@
   "keywords": "hubot, hubot-scripts, hue, meeting",
   "repository": {
     "type": "git",
-    "url": "git://github.com/hubot-scripts/hubot-hue-meeting.git"
+    "url": "git://github.com/stephenyeargin/hubot-hue-meeting.git"
   },
   "bugs": {
-    "url": "https://github.com/hubot-scripts/hubot-hue-meeting/issues"
+    "url": "https://github.com/stephenyeargin/hubot-hue-meeting/issues"
   },
   "dependencies": {
     "node-hue-api": "^2.2.0"
