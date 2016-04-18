@@ -13,7 +13,7 @@
     "url": "https://github.com/stephenyeargin/hubot-hue-meeting/issues"
   },
   "dependencies": {
-    "node-hue-api": "^2.2.0"
+    "node-hue-api": "1.2.1"
   },
   "peerDependencies": {
     "hubot": "2.x"
