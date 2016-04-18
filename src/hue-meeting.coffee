@@ -30,7 +30,7 @@ module.exports = (robot) ->
   state = lightState.create()
 
   # Define the various colors and modes
-  meetingColor = lightState.create().on(true).hue(meeting_hue).sat(meeting_sat).bri(meeting_bri).alert('select')
+  meetingColor = lightState.create().on(true).hue(meeting_hue).sat(meeting_sat).bri(meeting_bri).alert('select').effect('none')
   freeColor = lightState.create().on(true).hue(free_hue).sat(free_sat).bri(free_bri).alert("none").effect('none')
   partyMode = lightState.create().sat(255).bri(255).effect('colorloop').alert('lselect')
 
