@@ -20,14 +20,19 @@ lightState = hue.lightState
 module.exports = (robot) ->
   base_url = process.env.PHILIPS_HUE_IP
   hash  = process.env.PHILIPS_HUE_HASH
+  meeting_bri = process.env.PHILIPS_HUE_MEETING_BRI or 255
+  meeting_hue = process.env.PHILIPS_HUE_MEETING_HUE or 6144
+  meeting_sat = process.env.PHILIPS_HUE_MEETING_SAT or 255
+  free_bri = process.env.PHILIPS_HUE_FREE_BRI or 255
+  free_hue = process.env.PHILIPS_HUE_FREE_HUE or 0
+  free_sat = process.env.PHILIPS_HUE_FREE_SAT or 0
   api = new HueApi(base_url, hash)
   state = lightState.create()
 
   # Define the various colors and modes
-  meetingColor = lightState.create().on(true).hue(6144).sat(255).bri(255)
-  freeColor = lightState.create().on(true).hue(0).sat(0).bri(255)
-  partyMode = lightState.create().sat(255).effect('colorloop').alert('lselect')
-  backToWork = lightState.create().sat(0).effect('none').alert('none')
+  meetingColor = lightState.create().on(true).hue(meeting_hue).sat(meeting_sat).bri(meeting_bri).alert('select')
+  freeColor = lightState.create().on(true).hue(free_hue).sat(free_sat).bri(free_bri).alert("none").effect('none')
+  partyMode = lightState.create().sat(255).bri(255).effect('colorloop').alert('lselect')
 
   robot.respond /meeting$/i, (res) ->
     res.reply "Setting lights to meeting mode ..."
@@ -50,7 +55,7 @@ module.exports = (robot) ->
         robot.logger.debug status
     else
       res.reply 'Getting back to work now.'
-      api.setGroupLightState '0', backToWork, (err, status) ->
+      api.setGroupLightState '0', freeColor, (err, status) ->
         return handleError res, err if err
         robot.logger.debug status
 

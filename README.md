@@ -26,6 +26,16 @@ These two values must be set to interact with Hue bridge. For instructions on ob
 export PHILIPS_HUE_HASH="secrets"
 export PHILIPS_HUE_IP="xxx.xxx.xxx.xxx"
 ```
+You can also configure the hue/sat/bri of the light for both free and meeting mode, the defaults are below.
+
+```
+export PHILIPS_HUE_MEETING_BRI=255
+export PHILIPS_HUE_MEETING_HUE=6144
+export PHILIPS_HUE_MEETING_SAT=255
+export PHILIPS_HUE_FREE_BRI=255
+export PHILIPS_HUE_FREE_HUE=0
+export PHILIPS_HUE_FREE_SAT=0
+```
 
 ## Sample Interaction
 
