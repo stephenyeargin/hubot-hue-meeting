@@ -15,6 +15,9 @@ describe 'hue-meeting', ->
   it 'registers a respond meeting listener', ->
     expect(@robot.respond).to.have.been.calledWith(/meeting$/i)
 
+  it 'registers a guest listener', ->
+    expect(@robot.respond).to.have.been.calledWith(/(guest|guests)$/i)
+
   it 'registers a respond free listener', ->
     expect(@robot.respond).to.have.been.calledWith(/free$/i)
 
