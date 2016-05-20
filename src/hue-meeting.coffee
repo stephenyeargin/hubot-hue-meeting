@@ -44,7 +44,7 @@ module.exports = (robot) ->
       return handleError res, err if err
       robot.logger.debug status
 
-  robot.respond /guest$/i, (res) ->
+  robot.respond /(guest|guests)$/i, (res) ->
     res.reply "Setting lights to guest mode ..."
     api.setGroupLightState '0', guestColor, (err, status) ->
       return handleError res, err if err
