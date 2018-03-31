@@ -1,4 +1,4 @@
-# hubot-hue-meeting
+# Hue Meeting Mode [![npm version](https://badge.fury.io/js/hubot-hue-meeting.svg)](http://badge.fury.io/js/hubot-hue-meeting) [![Build Status](https://travis-ci.org/stephenyeargin/hubot-hue-meeting.png)](https://travis-ci.org/stephenyeargin/hubot-hue-meeting)
 
 Control your Hue lights for meeting mode.
 
