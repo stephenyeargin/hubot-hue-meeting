@@ -8,7 +8,7 @@
 # Commands:
 #   hubot meeting - Activate meeting mode
 #   hubot free - End meeting mode
-#   hubot disco - Have a bit of fun with the lights
+#   hubot disco <on|off> - Have a bit of fun with the lights
 #
 # Author:
 #   Stephen Yeargin <stephen.yeargin@gmail.com>
@@ -43,26 +43,30 @@ module.exports = (robot) ->
     api.setGroupLightState '0', meetingColor, (err, status) ->
       return handleError res, err if err
       robot.logger.debug status
+      res.send 'Done!'
 
   robot.respond /(guest|guests)$/i, (res) ->
     res.reply "Setting lights to guest mode ..."
     api.setGroupLightState '0', guestColor, (err, status) ->
       return handleError res, err if err
       robot.logger.debug status
+      res.send 'Done!'
 
   robot.respond /free$/i, (res) ->
     res.reply "Setting lights back to white ..."
     api.setGroupLightState '0', freeColor, (err, status) ->
       return handleError res, err if err
       robot.logger.debug status
+      res.send 'Done!'
 
   robot.respond /(?:disco|party) (on|off)$/i, (res) ->
     loop_status = res.match[1]
     if loop_status == 'on'
-      res.reply ":tada: Party mode activated! :tada:"
+      res.reply "Setting lights to party mode ..."
       api.setGroupLightState '0', partyMode, (err, status) ->
         return handleError res, err if err
         robot.logger.debug status
+        res.send ':tada: Party mode activated! :tada:'
     else
       res.reply 'Getting back to work now.'
       api.setGroupLightState '0', freeColor, (err, status) ->
@@ -70,5 +74,9 @@ module.exports = (robot) ->
         robot.logger.debug status
 
   handleError = (res, err) ->
-    robot.logger.error err
-    res.send err
+    robot.logger.debug err
+    switch err.code
+      when 'ETIMEDOUT'
+        res.send 'Connection timed out to Hue bridge.'
+      else
+        res.send "An error ocurred: #{err}"
