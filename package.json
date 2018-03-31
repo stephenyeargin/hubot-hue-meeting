@@ -1,7 +1,7 @@
 {
   "name": "hubot-hue-meeting",
   "description": "Control your Hue lights for meeting mode.",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "author": "Stephen Yeargin <stephen.yeargin@gmail.com>",
   "license": "MIT",
   "keywords": "hubot, hubot-scripts, hue, meeting",
