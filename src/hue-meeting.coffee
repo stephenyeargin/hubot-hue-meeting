@@ -1,17 +1,27 @@
 # Description
-#   Control your Hue lights for meeting mode.
+#   Control your Hue lights to let people know you're on a call.
 #
 # Configuration:
 #   PHILIPS_HUE_HASH - Secret hash for your user
 #   PHILIPS_HUE_IP - IP or hostname of your Hue bridge
+#   PHILIPS_HUE_MEETING_BRI - Brightness value for meeting mode
+#   PHILIPS_HUE_MEETING_HUE - Hue value for meeting mode
+#   PHILIPS_HUE_MEETING_SAT - Saturation value for meeting mode
+#   PHILIPS_HUE_GUEST_BRI - Brightness value for guest mode
+#   PHILIPS_HUE_GUEST_HUE - Hue value for guest mode
+#   PHILIPS_HUE_GUEST_SAT - Saturation value for guest mode
+#   PHILIPS_HUE_FREE_BRI - Brightness value for free mode
+#   PHILIPS_HUE_FREE_HUE - Hue value for free mode
+#   PHILIPS_HUE_FREE_SAT - Saturation value for free mode
 #
 # Commands:
 #   hubot meeting - Activate meeting mode
+#   hubot guest - Activate guest mode
 #   hubot free - End meeting mode
 #   hubot disco <on|off> - Have a bit of fun with the lights
 #
 # Author:
-#   Stephen Yeargin <stephen.yeargin@gmail.com>
+#   stephenyeargin
 
 hue = require('node-hue-api')
 HueApi = hue.HueApi
@@ -53,7 +63,7 @@ module.exports = (robot) ->
       res.send 'Done!'
 
   robot.respond /free$/i, (res) ->
-    res.reply "Setting lights back to white ..."
+    res.reply "Setting lights back to free ..."
     api.setGroupLightState '0', freeColor, (err, status) ->
       return handleError res, err if err
       robot.logger.debug status

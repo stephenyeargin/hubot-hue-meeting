@@ -42,6 +42,27 @@ describe 'hubot-hue-meeting', ->
       return
     , 1000)
 
+  # hubot guest
+  it 'sets the lights to guest mode', (done) ->
+    nock('http://1.2.3.4')
+      .put('/api/foobar/groups/0/action')
+      .replyWithFile(200, __dirname + '/fixtures/groups-0-action.json')
+
+    selfRoom = @room
+    selfRoom.user.say('alice', '@hubot guest')
+    setTimeout(() ->
+      try
+        expect(selfRoom.messages).to.eql [
+          ['alice', '@hubot guest']
+          ['hubot', '@alice Setting lights to guest mode ...']
+          ['hubot', 'Done!']
+        ]
+        done()
+      catch err
+        done err
+      return
+    , 1000)
+
   # hubot free
   it 'sets the lights to free mode', (done) ->
     nock('http://1.2.3.4')
@@ -54,7 +75,7 @@ describe 'hubot-hue-meeting', ->
       try
         expect(selfRoom.messages).to.eql [
           ['alice', '@hubot free']
-          ['hubot', '@alice Setting lights back to white ...']
+          ['hubot', '@alice Setting lights back to free ...']
           ['hubot', 'Done!']
         ]
         done()
