@@ -3,9 +3,9 @@ sudo: false
 notifications:
   email: false
 node_js:
-  - "10" # stable
-  - "8"  # LTS
-  - "6"  # maintenance
+  - "14" # stable
+  - "12" # LTS
+  - "10" # maintenance
 cache:
   directories:
     - node_modules
