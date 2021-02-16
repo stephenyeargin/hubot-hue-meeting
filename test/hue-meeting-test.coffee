@@ -14,6 +14,9 @@ describe 'hubot-hue-meeting', ->
     process.env.PHILIPS_HUE_IP='1.2.3.4'
     nock.disableNetConnect()
     @room = helper.createRoom()
+    nock('http://1.2.3.4')
+      .get('/api/config')
+      .replyWithFile(200, __dirname + '/fixtures/api-config.json')
 
   afterEach ->
     delete process.env.PHILIPS_HUE_HASH
@@ -127,6 +130,10 @@ describe 'hubot-hue-meeting', ->
 
   # connection failure
   it 'simulated connection failure', (done) ->
+    nock.cleanAll()
+    nock('http://1.2.3.4')
+      .get('/api/config')
+      .replyWithError({code: 'ETIMEDOUT'})
     nock('http://1.2.3.4')
       .put('/api/foobar/groups/0/action')
       .replyWithError({code: 'ETIMEDOUT'})
@@ -148,6 +155,10 @@ describe 'hubot-hue-meeting', ->
 
   # bad credentials
   it 'simulated bad credentials', (done) ->
+    nock.cleanAll()
+    nock('http://1.2.3.4')
+      .get('/api/config')
+      .reply(200, __dirname + '/fixtures/unauthorized-user.json')
     nock('http://1.2.3.4')
       .put('/api/foobar/groups/0/action')
       .replyWithFile(200, __dirname + '/fixtures/unauthorized-user.json')
@@ -159,7 +170,7 @@ describe 'hubot-hue-meeting', ->
         expect(selfRoom.messages).to.eql [
           ['alice', '@hubot meeting']
           ['hubot', '@alice Setting lights to meeting mode ...']
-          ['hubot', 'An error ocurred: Api Error: unauthorized user']
+          ['hubot', 'An error ocurred: Error: unauthorized user']
         ]
         done()
       catch err

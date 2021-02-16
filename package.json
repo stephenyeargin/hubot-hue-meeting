@@ -14,21 +14,21 @@
     "url": "https://github.com/stephenyeargin/hubot-hue-meeting/issues"
   },
   "dependencies": {
-    "node-hue-api": "^2.4.5"
+    "node-hue-api": "^4.0.10"
   },
   "peerDependencies": {
     "hubot": "^3"
   },
   "devDependencies": {
-    "chai": "^4.2.0",
+    "chai": "^4.3.0",
     "coffee-script": "^1.12.7",
     "hubot-test-helper": "^1.9.0",
-    "husky": "^4.2.5",
+    "husky": "^5.0.9",
     "matchdep": "^2.0.0",
-    "mocha": "^8.1.1",
-    "nock": "^13.0.2",
-    "release-it": "^13.6.6",
-    "sinon": "^9.0.2",
+    "mocha": "^8.3.0",
+    "nock": "^13.0.7",
+    "release-it": "^14.4.0",
+    "sinon": "^9.2.4",
     "sinon-chai": "^3.5.0"
   },
   "main": "index.coffee",
