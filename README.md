@@ -1,6 +1,6 @@
 # Hubot Hue Meeting
 
-[![npm version](https://badge.fury.io/js/hubot-hue-meeting.svg)](http://badge.fury.io/js/hubot-hue-meeting) [![Build Status](https://travis-ci.org/stephenyeargin/hubot-hue-meeting.png)](https://travis-ci.org/stephenyeargin/hubot-hue-meeting)
+[![npm version](https://badge.fury.io/js/hubot-hue-meeting.svg)](http://badge.fury.io/js/hubot-hue-meeting) [![Build Status](https://app.travis-ci.com/stephenyeargin/hubot-hue-meeting.png)](https://app.travis-ci.com/stephenyeargin/hubot-hue-meeting)
 
 Control your Hue lights to let people know you're on a call.
 
