@@ -41,10 +41,11 @@ module.exports = (robot) ->
   free_sat = process.env.PHILIPS_HUE_FREE_SAT or 0
 
   # Connect based on provided string
-  if /^https\:/i.test(base_url)
-    hueApi = hue.api.createLocal(base_url).connect(hash)
-  else
-    hueApi = hue.api.createInsecureLocal(base_url).connect(hash)
+  getClient = () ->
+    if /^https\:/i.test(base_url)
+      return hue.api.createLocal(base_url).connect(hash)
+    else
+      return hue.api.createInsecureLocal(base_url).connect(hash)
 
   # Define the various colors and modes
   meetingColor = new LightState().on(true).hue(meeting_hue).sat(meeting_sat).bri(meeting_bri).alert('select').effect('none')
@@ -53,6 +54,7 @@ module.exports = (robot) ->
   partyMode = new LightState().sat(254).bri(254).effect('colorloop').alert('lselect')
 
   robot.respond /meeting$/i, (res) ->
+    hueApi = getClient()
     res.reply "Setting lights to meeting mode ..."
     robot.logger.debug 'Connecting ...'
     hueApi.then (api) ->
@@ -64,6 +66,7 @@ module.exports = (robot) ->
       handleError res, err
 
   robot.respond /(guest|guests)$/i, (res) ->
+    hueApi = getClient()
     res.reply "Setting lights to guest mode ..."
     hueApi.then (api) ->
       api.groups.setGroupState 0, guestColor
@@ -74,6 +77,7 @@ module.exports = (robot) ->
       handleError res, err
 
   robot.respond /free$/i, (res) ->
+    hueApi = getClient()
     res.reply "Setting lights back to free ..."
     hueApi.then (api) ->
       api.groups.setGroupState 0, freeColor
@@ -84,6 +88,7 @@ module.exports = (robot) ->
       handleError res, err
 
   robot.respond /(?:disco|party) (on|off)$/i, (res) ->
+    hueApi = getClient()
     loop_status = res.match[1]
     if loop_status == 'on'
       res.reply "Setting lights to party mode ..."
