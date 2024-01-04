@@ -1,1 +1,12 @@
-{"name":"Test Hue","datastoreversion":"99","swversion":"1942135050","apiversion":"1.42.0","mac":"00:00:00:00:00:00","bridgeid":"001788DEADBEEFD1","factorynew":false,"replacesbridgeid":"001788DEADBEEF25","modelid":"BSB002","starterkitid":""}
+{
+  "name": "Test Hue",
+  "datastoreversion": "99",
+  "swversion": "1942135050",
+  "apiversion": "1.42.0",
+  "mac": "00:00:00:00:00:00",
+  "bridgeid": "001788DEADBEEFD1",
+  "factorynew": false,
+  "replacesbridgeid": "001788DEADBEEF25",
+  "modelid": "BSB002",
+  "starterkitid": ""
+}
