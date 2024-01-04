@@ -1,7 +1,7 @@
 {
   "name": "hubot-hue-meeting",
   "description": "Control your Hue lights to let people know you're on a call.",
-  "version": "2.0.6",
+  "version": "2.1.0",
   "author": "Stephen Yeargin <stephen@yearg.in>",
   "homepage": "https://github.com/stephenyeargin/hubot-hue-meeting",
   "license": "MIT",
