@@ -3,8 +3,6 @@
 const Helper = require('hubot-test-helper');
 const chai = require('chai');
 const nock = require('nock');
-const sinon = require('sinon');
-const sslCertificate = require('get-ssl-certificate');
 
 const {
   expect,
@@ -15,27 +13,11 @@ const helper = new Helper([
 ]);
 
 describe('hubot-hue-meeting', () => {
-  let sandbox;
-  let sslStub;
   beforeEach(function () {
     process.env.PHILIPS_HUE_HASH = 'foobar';
     process.env.PHILIPS_HUE_IP = '1.2.3.4';
-    sandbox = sinon.createSandbox();
-    sslStub = sandbox.stub(sslCertificate, 'get').resolves(
-      {
-        subject: {
-          CN: '001788DEADBEEFD1',
-        },
-      },
-    );
     nock.disableNetConnect();
     this.room = helper.createRoom();
-    nock('https://1.2.3.4')
-      .get('/')
-      .reply(200);
-    nock('https://1.2.3.4')
-      .get('/api/config')
-      .replyWithFile(200, `${__dirname}/fixtures/api-config.json`);
   });
 
   afterEach(function () {
@@ -43,7 +25,6 @@ describe('hubot-hue-meeting', () => {
     delete process.env.PHILIPS_HUE_IP;
     nock.cleanAll();
     this.room.destroy();
-    sandbox.restore();
   });
 
   // hubot meeting
@@ -57,7 +38,6 @@ describe('hubot-hue-meeting', () => {
     setTimeout(
       () => {
         try {
-          sandbox.assert.calledOnce(sslStub);
           expect(selfRoom.messages).to.eql([
             ['alice', '@hubot meeting'],
             ['hubot', '@alice Setting lights to meeting mode ...'],
@@ -83,7 +63,6 @@ describe('hubot-hue-meeting', () => {
     setTimeout(
       () => {
         try {
-          sandbox.assert.calledOnce(sslStub);
           expect(selfRoom.messages).to.eql([
             ['alice', '@hubot guest'],
             ['hubot', '@alice Setting lights to guest mode ...'],
@@ -109,7 +88,6 @@ describe('hubot-hue-meeting', () => {
     setTimeout(
       () => {
         try {
-          sandbox.assert.calledOnce(sslStub);
           expect(selfRoom.messages).to.eql([
             ['alice', '@hubot free'],
             ['hubot', '@alice Setting lights back to free ...'],
@@ -135,7 +113,6 @@ describe('hubot-hue-meeting', () => {
     setTimeout(
       () => {
         try {
-          sandbox.assert.calledOnce(sslStub);
           expect(selfRoom.messages).to.eql([
             ['alice', '@hubot disco on'],
             ['hubot', '@alice Setting lights to party mode ...'],
@@ -161,7 +138,6 @@ describe('hubot-hue-meeting', () => {
     setTimeout(
       () => {
         try {
-          sandbox.assert.calledOnce(sslStub);
           expect(selfRoom.messages).to.eql([
             ['alice', '@hubot disco off'],
             ['hubot', '@alice Getting back to work now.'],
@@ -177,19 +153,9 @@ describe('hubot-hue-meeting', () => {
 });
 
 describe('hubot-hue-meeting errors', () => {
-  let sandbox;
-  let sslStub;
   beforeEach(function () {
     process.env.PHILIPS_HUE_HASH = 'foobar';
     process.env.PHILIPS_HUE_IP = '1.2.3.4';
-    sandbox = sinon.createSandbox();
-    sslStub = sandbox.stub(sslCertificate, 'get').resolves(
-      {
-        subject: {
-          CN: '001788DEADBEEFD1',
-        },
-      },
-    );
     nock.disableNetConnect();
     this.room = helper.createRoom();
   });
@@ -199,14 +165,10 @@ describe('hubot-hue-meeting errors', () => {
     delete process.env.PHILIPS_HUE_IP;
     nock.cleanAll();
     this.room.destroy();
-    sandbox.restore();
   });
 
   // connection failure
   it('simulated connection failure', function (done) {
-    nock('https://1.2.3.4')
-      .get('/api/config')
-      .replyWithError({ code: 'ETIMEDOUT' });
     nock('https://1.2.3.4')
       .put('/api/foobar/groups/0/action')
       .replyWithError({ code: 'ETIMEDOUT' });
@@ -233,12 +195,6 @@ describe('hubot-hue-meeting errors', () => {
   // bad credentials
   it('simulated bad credentials', function (done) {
     nock('https://1.2.3.4')
-      .get('/')
-      .reply(200);
-    nock('https://1.2.3.4')
-      .get('/api/config')
-      .replyWithFile(200, `${__dirname}/fixtures/api-config.json`);
-    nock('https://1.2.3.4')
       .put('/api/foobar/groups/0/action')
       .replyWithFile(200, `${__dirname}/fixtures/unauthorized-user.json`);
 
@@ -247,7 +203,6 @@ describe('hubot-hue-meeting errors', () => {
     setTimeout(
       () => {
         try {
-          sandbox.assert.calledOnce(sslStub);
           expect(selfRoom.messages).to.eql([
             ['alice', '@hubot meeting'],
             ['hubot', '@alice Setting lights to meeting mode ...'],
