@@ -1,219 +1,142 @@
-/* global describe beforeEach afterEach it */
-/* eslint-disable func-names */
-const Helper = require('hubot-test-helper');
-const chai = require('chai');
-const nock = require('nock');
-
 const {
-  expect,
-} = chai;
+  describe, it, beforeEach, afterEach,
+} = require('node:test');
+const assert = require('node:assert/strict');
+const nock = require('nock');
+const { createTestBot } = require('./common/TestBot');
 
-const helper = new Helper([
-  '../src/hue-meeting.js',
-]);
+// Helper: send one message and collect the next N events across 'reply' and 'send'
+// Returns { replies: [...], sends: [...] } after waiting for the expected count.
+function collectResponses(bot, message, { replyCount = 0, sendCount = 0 }) {
+  return new Promise((resolve) => {
+    const replies = [];
+    const sends = [];
+
+    const check = () => {
+      if (replies.length >= replyCount && sends.length >= sendCount) {
+        resolve({ replies, sends });
+      }
+    };
+
+    if (replyCount > 0) {
+      bot.robot.adapter.on('reply', function onReply(_, strings) {
+        replies.push(strings[0]);
+        check();
+        if (replies.length >= replyCount) {
+          bot.robot.adapter.removeListener('reply', onReply);
+        }
+      });
+    }
+
+    if (sendCount > 0) {
+      bot.robot.adapter.on('send', function onSend(_, strings) {
+        sends.push(strings[0]);
+        check();
+        if (sends.length >= sendCount) {
+          bot.robot.adapter.removeListener('send', onSend);
+        }
+      });
+    }
+
+    // If nothing to wait for, resolve immediately after send
+    if (replyCount === 0 && sendCount === 0) {
+      bot.send(message).then(resolve);
+      return;
+    }
+
+    bot.send(message);
+  });
+}
 
 describe('hubot-hue-meeting', () => {
-  beforeEach(function () {
-    process.env.PHILIPS_HUE_HASH = 'foobar';
-    process.env.PHILIPS_HUE_IP = '1.2.3.4';
-    nock.disableNetConnect();
-    this.room = helper.createRoom();
+  let bot;
+
+  beforeEach(async () => {
+    bot = await createTestBot();
   });
 
-  afterEach(function () {
-    delete process.env.PHILIPS_HUE_HASH;
-    delete process.env.PHILIPS_HUE_IP;
-    nock.cleanAll();
-    this.room.destroy();
+  afterEach(() => {
+    bot.shutdown();
   });
 
-  // hubot meeting
-  it('sets the lights to meeting mode', function (done) {
+  it('sets the lights to meeting mode', async () => {
     nock('https://1.2.3.4')
       .put('/api/foobar/groups/0/action')
       .replyWithFile(200, `${__dirname}/fixtures/groups-0-action.json`);
 
-    const selfRoom = this.room;
-    selfRoom.user.say('alice', '@hubot meeting');
-    setTimeout(
-      () => {
-        try {
-          expect(selfRoom.messages).to.eql([
-            ['alice', '@hubot meeting'],
-            ['hubot', '@alice Setting lights to meeting mode ...'],
-            ['hubot', 'Done!'],
-          ]);
-          done();
-        } catch (err) {
-          done(err);
-        }
-      },
-      100,
-    );
+    const { replies, sends } = await collectResponses(bot, '@hubot meeting', { replyCount: 1, sendCount: 1 });
+    assert.equal(replies[0], 'Setting lights to meeting mode ...');
+    assert.equal(sends[0], 'Done!');
   });
 
-  // hubot guest
-  it('sets the lights to guest mode', function (done) {
+  it('sets the lights to guest mode', async () => {
     nock('https://1.2.3.4')
       .put('/api/foobar/groups/0/action')
       .replyWithFile(200, `${__dirname}/fixtures/groups-0-action.json`);
 
-    const selfRoom = this.room;
-    selfRoom.user.say('alice', '@hubot guest');
-    setTimeout(
-      () => {
-        try {
-          expect(selfRoom.messages).to.eql([
-            ['alice', '@hubot guest'],
-            ['hubot', '@alice Setting lights to guest mode ...'],
-            ['hubot', 'Done!'],
-          ]);
-          done();
-        } catch (err) {
-          done(err);
-        }
-      },
-      100,
-    );
+    const { replies, sends } = await collectResponses(bot, '@hubot guest', { replyCount: 1, sendCount: 1 });
+    assert.equal(replies[0], 'Setting lights to guest mode ...');
+    assert.equal(sends[0], 'Done!');
   });
 
-  // hubot free
-  it('sets the lights to free mode', function (done) {
+  it('sets the lights to free mode', async () => {
     nock('https://1.2.3.4')
       .put('/api/foobar/groups/0/action')
       .replyWithFile(200, `${__dirname}/fixtures/groups-0-action.json`);
 
-    const selfRoom = this.room;
-    selfRoom.user.say('alice', '@hubot free');
-    setTimeout(
-      () => {
-        try {
-          expect(selfRoom.messages).to.eql([
-            ['alice', '@hubot free'],
-            ['hubot', '@alice Setting lights back to free ...'],
-            ['hubot', 'Done!'],
-          ]);
-          done();
-        } catch (err) {
-          done(err);
-        }
-      },
-      100,
-    );
+    const { replies, sends } = await collectResponses(bot, '@hubot free', { replyCount: 1, sendCount: 1 });
+    assert.equal(replies[0], 'Setting lights back to free ...');
+    assert.equal(sends[0], 'Done!');
   });
 
-  // hubot disco
-  it('sets the lights to disco mode', function (done) {
+  it('sets the lights to disco mode', async () => {
     nock('https://1.2.3.4')
       .put('/api/foobar/groups/0/action')
       .replyWithFile(200, `${__dirname}/fixtures/groups-0-action.json`);
 
-    const selfRoom = this.room;
-    selfRoom.user.say('alice', '@hubot disco on');
-    setTimeout(
-      () => {
-        try {
-          expect(selfRoom.messages).to.eql([
-            ['alice', '@hubot disco on'],
-            ['hubot', '@alice Setting lights to party mode ...'],
-            ['hubot', ':tada: Party mode activated! :tada:'],
-          ]);
-          done();
-        } catch (err) {
-          done(err);
-        }
-      },
-      100,
-    );
+    const { replies, sends } = await collectResponses(bot, '@hubot disco on', { replyCount: 1, sendCount: 1 });
+    assert.equal(replies[0], 'Setting lights to party mode ...');
+    assert.equal(sends[0], ':tada: Party mode activated! :tada:');
   });
 
-  // hubot disco
-  it('sets the lights to normal mode', function (done) {
+  it('sets the lights to normal mode', async () => {
     nock('https://1.2.3.4')
       .put('/api/foobar/groups/0/action')
       .replyWithFile(200, `${__dirname}/fixtures/groups-0-action.json`);
 
-    const selfRoom = this.room;
-    selfRoom.user.say('alice', '@hubot disco off');
-    setTimeout(
-      () => {
-        try {
-          expect(selfRoom.messages).to.eql([
-            ['alice', '@hubot disco off'],
-            ['hubot', '@alice Getting back to work now.'],
-          ]);
-          done();
-        } catch (err) {
-          done(err);
-        }
-      },
-      100,
-    );
+    const { replies } = await collectResponses(bot, '@hubot disco off', { replyCount: 1 });
+    assert.equal(replies[0], 'Getting back to work now.');
   });
 });
 
 describe('hubot-hue-meeting errors', () => {
-  beforeEach(function () {
-    process.env.PHILIPS_HUE_HASH = 'foobar';
-    process.env.PHILIPS_HUE_IP = '1.2.3.4';
-    nock.disableNetConnect();
-    this.room = helper.createRoom();
+  let bot;
+
+  beforeEach(async () => {
+    bot = await createTestBot();
   });
 
-  afterEach(function () {
-    delete process.env.PHILIPS_HUE_HASH;
-    delete process.env.PHILIPS_HUE_IP;
-    nock.cleanAll();
-    this.room.destroy();
+  afterEach(() => {
+    bot.shutdown();
   });
 
-  // connection failure
-  it('simulated connection failure', function (done) {
+  it('simulated connection failure', async () => {
     nock('https://1.2.3.4')
       .put('/api/foobar/groups/0/action')
       .replyWithError({ code: 'ETIMEDOUT' });
 
-    const selfRoom = this.room;
-    selfRoom.user.say('alice', '@hubot meeting');
-    setTimeout(
-      () => {
-        try {
-          expect(selfRoom.messages).to.eql([
-            ['alice', '@hubot meeting'],
-            ['hubot', '@alice Setting lights to meeting mode ...'],
-            ['hubot', 'Connection timed out to Hue bridge.'],
-          ]);
-          done();
-        } catch (err) {
-          done(err);
-        }
-      },
-      100,
-    );
+    const { replies, sends } = await collectResponses(bot, '@hubot meeting', { replyCount: 1, sendCount: 1 });
+    assert.equal(replies[0], 'Setting lights to meeting mode ...');
+    assert.equal(sends[0], 'Connection timed out to Hue bridge.');
   });
 
-  // bad credentials
-  it('simulated bad credentials', function (done) {
+  it('simulated bad credentials', async () => {
     nock('https://1.2.3.4')
       .put('/api/foobar/groups/0/action')
       .replyWithFile(200, `${__dirname}/fixtures/unauthorized-user.json`);
 
-    const selfRoom = this.room;
-    selfRoom.user.say('alice', '@hubot meeting');
-    setTimeout(
-      () => {
-        try {
-          expect(selfRoom.messages).to.eql([
-            ['alice', '@hubot meeting'],
-            ['hubot', '@alice Setting lights to meeting mode ...'],
-            ['hubot', 'An error ocurred: Error: unauthorized user'],
-          ]);
-          done();
-        } catch (err) {
-          done(err);
-        }
-      },
-      100,
-    );
+    const { replies, sends } = await collectResponses(bot, '@hubot meeting', { replyCount: 1, sendCount: 1 });
+    assert.equal(replies[0], 'Setting lights to meeting mode ...');
+    assert.equal(sends[0], 'An error ocurred: Error: unauthorized user');
   });
 });
