@@ -100,12 +100,20 @@ describe('hubot-hue-meeting', () => {
   });
 
   it('sets the lights to normal mode', async () => {
-    nock('https://1.2.3.4')
+    const scope = nock('https://1.2.3.4')
       .put('/api/foobar/groups/0/action')
       .replyWithFile(200, `${__dirname}/fixtures/groups-0-action.json`);
 
     const { replies } = await collectResponses(bot, '@hubot disco off', { replyCount: 1 });
     assert.equal(replies[0], 'Getting back to work now.');
+
+    // "disco off" doesn't emit a `send` event on success, so wait for the
+    // underlying bridge request itself to finish before the test (and its
+    // afterEach nock.cleanAll()) moves on — otherwise this request can still
+    // be in flight and steal the next test's mocked interceptor.
+    if (!scope.isDone()) {
+      await new Promise((resolve) => { scope.once('replied', resolve); });
+    }
   });
 });
 
@@ -123,7 +131,7 @@ describe('hubot-hue-meeting errors', () => {
   it('simulated connection failure', async () => {
     nock('https://1.2.3.4')
       .put('/api/foobar/groups/0/action')
-      .replyWithError({ code: 'ETIMEDOUT' });
+      .replyWithError(Object.assign(new Error('ETIMEDOUT'), { code: 'ETIMEDOUT' }));
 
     const { replies, sends } = await collectResponses(bot, '@hubot meeting', { replyCount: 1, sendCount: 1 });
     assert.equal(replies[0], 'Setting lights to meeting mode ...');
